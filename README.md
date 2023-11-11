@@ -6,12 +6,12 @@ Currently, you can manage these resources in Airflow by using this module:
 
 - Users
 - Roles
+- Connect to Airflow API with Basic Auth
 
 Tested in:
 
 - Apache Airflow ✅
 - Astronomer ❌
-- Google Composer ❌
 
 ## A. Prerequisites
 
@@ -27,8 +27,14 @@ Requirements:
 ## B. How to use this module for your Terraform project ?
 
 - Copy `example` project from this module. You can extend it as per your requirements
-- Configure AWS Secret and Access Key by modifying the `providers.tf`
-  - Ensure that you store the AWS Secret and Access Key in environment variables. Don't put it in the terraform file
+- Configure Airflow hostname by modifying the `providers.tf`. For example `http://localhost:8080/`
+- Configure `TF_VAR_airflow_username` and `TF_VAR_airflow_username` as environment variables. For example:
+
+```
+$ export TF_VAR_airflow_username=airflow
+$ export TF_VAR_airflow_password=airflow
+```
+
 - Create `terraform.tfvars` inside the Project. Then copy this sample terraform.tfvars into the file:
 
 ```
@@ -105,7 +111,7 @@ airflow_users = [
 ]
  ```
 
-- Adjust the change based on your requirements. The tfvars above is just example. Then, Save it
+- Adjust the tfvars based on your requirements. The tfvars above is just example. Then, Save it
 - Run these commands:
 
 ```
@@ -147,7 +153,8 @@ Changes to Outputs:
     }
 ```
 
-lorem ipsum
+After you feel confidence with the terraform plan output, let's apply it.
+
 ```
 $ terraform apply -auto-approve
 ```
@@ -187,75 +194,67 @@ airflow_users = {
 }
 ```
 
+Now you can check the Airflow List Roles page and List User page to see the applied changes.
+
 ## C. Understanding tfvars scenarios
 
 There are some scenarios that you could choose by using this module. For example:
 
-1. create user without specifying group and policy
+1. create users without specifying custom role. For example you can choose `Viewer` role and assign it to users.
 
 ```
-iam_users = [
+airflow_users = [
   {
-    username    = "gatot",
-    group       = [],
-    policy_name = ""
-    ssh_keys = {
-      encoding   = "",
-      public_key = ""
-      status     = ""
-    }
+    email      = "ridwanbejo@gmail.com"
+    first_name = "Ridwan"
+    last_name  = "Bejo"
+    username   = "ridwanbejo"
+    roles      = ["Viewer"]
   },
+  {
+    email      = "sakura.machiya@gmail.com"
+    first_name = "Sakura"
+    last_name  = "Machiya"
+    username   = "sakuramachi"
+    roles      = ["Viewer"]
+  }
 ]
 ```
 
-2. create user without group but specifying policy. Ensure that you create policy in the first place.
+> In Airflow, there are some roles by default when you have Airflow fresh installation. Those roles are `Admin`, `Viewer`, `User`, `Op`, `Public`. I use `Viewer` because that was the default role which are provided by Airflow.
+
+2. create users with custom role
 
 ```
-iam_users = [
+airflow_users = [
   {
-    username    = "subroto",
-    group       = [],
-    policy_name = "vendor_policy"
-    ssh_keys = {
-      encoding   = "",
-      public_key = ""
-      status     = ""
-    }
+    email      = "peter.dart@gmail.com"
+    first_name = "Peter"
+    last_name  = "Dart"
+    username   = "peterdart"
+    roles      = ["custom-role-1"]
   },
+  {
+    email      = "eliza.fangerbau@gmail.com"
+    first_name = "Eliza"
+    last_name  = "Fangerbau"
+    username   = "elizafang"
+    roles      = ["custom-role-2"]
+  }
 ]
 ```
 
-3. create user without policy and specifying group with attached policy. Ensure that you create policy in the first place and attacht it to the group
+3. create user with multiple roles
 
 ```
-iam_users = [
+airflow_users = [
   {
-    username    = "rasuna",
-    group       = ['developers'],
-    policy_name = ""
-    ssh_keys = {
-      encoding   = "",
-      public_key = ""
-      status     = ""
-    }
-  },
-]
-```
-
-4. Same with 3rd scenario, but you add ssh_keys for the user
-
-```
-iam_users = [
-  {
-    username    = "satrio",
-    group       = ["developers"],
-    policy_name = ""
-    ssh_keys = {
-      encoding   = "SSH",
-      public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD3F6tyPEFEzV0LX3X8BsXdMsQz1x2cEikKDEY0aIj41qgxMCP/iteneqXSIFZBp5vizPvaoIR3Um9xK7PGoW8giupGn+EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK43 satrio@mydomain.com"
-      status     = "active"
-    }
-  },
+    email      = "michelle.wang@gmail.com"
+    first_name = "Michelle"
+    last_name  = "Wang"
+    username   = "michwang"
+    roles      = ["custom-role-2", "custom-role-3"]
+  }
 ]
 ```
 
@@ -283,8 +282,8 @@ The tools:
 
 ## E. How to contribute ?
 
-If you find any issue, you can raise it here at our [Issue Tracker](https://github.com/ridwanbejo/terraform-aws-iam-user-group/issues)
+If you find any issue, you can raise it here at our [Issue Tracker](https://github.com/ridwanbejo/terraform-airflow-user/issues)
 
-If you have something that you want to merge to this repo, just raise [Pull Requests](https://github.com/ridwanbejo/terraform-aws-iam-user-group/pulls)
+If you have something that you want to merge to this repo, just raise [Pull Requests](https://github.com/ridwanbejo/terraform-airflow-user/pulls)
 
-Ensure that you install all the tools from section C for development purpose.
+Ensure that you install all the tools from section D. for development purpose.
