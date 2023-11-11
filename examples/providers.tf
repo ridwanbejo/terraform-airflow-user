@@ -12,9 +12,3 @@ terraform {
     }
   }
 }
-
-# provider "airflow" {
-#   base_endpoint = "http://localhost:8080"
-#   username  = "airflow"
-#   password  = "airflow"
-# }
